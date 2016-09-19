@@ -18,7 +18,6 @@ import java.util.HashSet;
  * Main service handler for the api
  * Created by manoj on 19/09/16.
  */
-
 @Service
 @Path("direct")
 public class DirectBusRouteService {
@@ -46,6 +45,7 @@ public class DirectBusRouteService {
         try {
             busRouteData = busRouteDataFile.getBusRouteData();
         } catch (IOException e) {
+            //Any error in data loading returns false
             return new DirectBusRouteResult(depSid, arrSid, false);
         }
 
@@ -60,7 +60,8 @@ public class DirectBusRouteService {
     /**
      * @param depSidRouteSet The set of route Id's servicing the departure station
      * @param arrSidRouteSet The set of route Id's servicing the arrival station
-     * @return 'true' if any route services both the departure and arrival stations, 'false' otherwise.
+     * @return 'true' if any route services both the departure and arrival stations
+     *          ( or if departure and arrival stations are the same ), 'false' otherwise.
      */
     private boolean intersection(HashSet<Integer> depSidRouteSet, HashSet<Integer> arrSidRouteSet) {
 
@@ -69,6 +70,7 @@ public class DirectBusRouteService {
         }
 
         for (int depSidRoute : depSidRouteSet) {
+            // If atleast one route has both the station id's we return true
             if (arrSidRouteSet.contains(depSidRoute)) {
                 return true;
             }
