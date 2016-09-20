@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -17,26 +16,23 @@ import java.util.HashSet;
 public class GoeuroApplicationTests {
 
     /**
-     * Pass an empty data file to test the exception thrown while loading the file.
-     *
-     * @throws IOException which is asserted by the test case
+     * Pass an empty data file
      */
-    @Test(expected = IOException.class)
-    public void emptyDataFileExceptionTest() throws IOException {
+    @Test
+    public void emptyDataFileExceptionTest() {
 
         BusRouteDataFile.BUS_DATA_FILE_PATH = getAbsolutePathFromName("BusRouteDataTestEmptyFile");
 
         BusRouteDataFile dataFile = new BusRouteDataFile();
-        dataFile.getBusRouteData();
+        Assert.assertTrue(dataFile.getBusRouteData().isEmpty());
+
     }
 
     /**
-     * Pass an empty data file to test the exception thrown while loading the file.
-     *
-     * @throws IOException in case of improper data file set up
+     * Pass an sample data file and test output of combination of input conditions
      */
     @Test
-    public void sampleDataFileTest() throws IOException {
+    public void sampleDataFileTest() {
 
         BusRouteDataFile.BUS_DATA_FILE_PATH = getAbsolutePathFromName("BusRouteSampleDataFile");
 
