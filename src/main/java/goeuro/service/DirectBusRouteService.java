@@ -2,10 +2,11 @@ package goeuro.service;
 
 import goeuro.util.BusRouteDataFile;
 import goeuro.util.DirectBusRouteResult;
+import goeuro.validator.StationId;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -39,22 +40,26 @@ public class DirectBusRouteService {
      */
     @GET
     @Produces("application/json")
-    public DirectBusRouteResult getDirectBusRoute(@QueryParam("dep_sid") @NotNull String depSid, @QueryParam("arr_sid") @NotNull String arrSid) {
+    public DirectBusRouteResult getDirectBusRoute(@QueryParam("dep_sid") @NotEmpty @StationId String depSid,
+                                                  @QueryParam("arr_sid") @NotEmpty @StationId String arrSid) {
+
+        int departureStationId = Integer.parseInt(depSid);
+        int arrivalStationId = Integer.parseInt(arrSid);
 
         HashMap<Integer, HashSet<Integer>> busRouteData;
         try {
             busRouteData = busRouteDataFile.getBusRouteData();
         } catch (IOException e) {
             //Any error in data loading returns false
-            return new DirectBusRouteResult(depSid, arrSid, false);
+            return new DirectBusRouteResult(departureStationId, arrivalStationId, false);
         }
 
-        HashSet<Integer> depSidRouteSet = busRouteData.get(Integer.parseInt(depSid));
-        HashSet<Integer> arrSidRouteSet = busRouteData.get(Integer.parseInt(arrSid));
+        HashSet<Integer> depSidRouteSet = busRouteData.get(departureStationId);
+        HashSet<Integer> arrSidRouteSet = busRouteData.get(arrivalStationId);
 
         boolean directBusRoute = intersection(depSidRouteSet, arrSidRouteSet);
 
-        return new DirectBusRouteResult(depSid, arrSid, directBusRoute);
+        return new DirectBusRouteResult(departureStationId, arrivalStationId, directBusRoute);
     }
 
     /**

@@ -10,9 +10,9 @@ public class DirectBusRouteResult {
     private int arr_sid;
     private boolean direct_bus_route;
 
-    public DirectBusRouteResult(String dep_sid, String arr_sid, boolean direct_bus_route) {
-        this.dep_sid = Integer.parseInt(dep_sid);
-        this.arr_sid = Integer.parseInt(arr_sid);
+    public DirectBusRouteResult(int dep_sid, int arr_sid, boolean direct_bus_route) {
+        this.dep_sid = dep_sid;
+        this.arr_sid = arr_sid;
         this.direct_bus_route = direct_bus_route;
     }
 
