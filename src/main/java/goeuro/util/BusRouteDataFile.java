@@ -1,5 +1,8 @@
 package goeuro.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -19,9 +22,17 @@ import java.util.HashSet;
 @Component
 public class BusRouteDataFile {
 
+    private static final Logger logger = LoggerFactory.getLogger(BusRouteDataFile.class);
     public static String BUS_DATA_FILE_PATH;
+    @Value("${DATA_DELIMITER}")
+    private String DELIMITER;
+
+
+    @Value("${MIN_ROUTE_ARGUMENTS}")
+    private int MIN_ROUTE_ARGUMENTS;
 
     private boolean isBusRouteDataLoaded = false;
+
 
     private HashMap<Integer, HashSet<Integer>> busRouteData = new HashMap<>();
 
@@ -33,17 +44,15 @@ public class BusRouteDataFile {
     public HashMap<Integer, HashSet<Integer>> getBusRouteData() throws IOException {
         if (!isBusRouteDataLoaded) {
             if (!loadBusRouteData()) {
+                logger.error("Error loading the input Data");
                 throw new IOException("Error loading Bus Data");
+
             }
         }
         return busRouteData;
     }
 
     private boolean loadBusRouteData() {
-
-        //Default delimiter
-        final String DELIMITER = " ";
-        final int MIN_ROUTE_ARGUMENTS = 3;
 
         try (BufferedReader br = Files.newBufferedReader(Paths.get(BUS_DATA_FILE_PATH))) {
 
@@ -52,14 +61,17 @@ public class BusRouteDataFile {
             String line = br.readLine();
 
             if (line == null) {
-                throw new IllegalArgumentException("No data in the file");
+                logger.error("Empty data in the file " + BUS_DATA_FILE_PATH);
+                throw new IllegalArgumentException("No data in the file " + BUS_DATA_FILE_PATH);
             }
 
             while ((line = br.readLine()) != null) {
+                System.out.println(" Delimiter " + DELIMITER);
                 String[] routeInfo = line.split(DELIMITER);
 
-
                 if (routeInfo.length < MIN_ROUTE_ARGUMENTS) {
+                    logger.error(" Illegal Data in the input. Each route should have atleast " + MIN_ROUTE_ARGUMENTS + " inputs. " +
+                            "Actual data " + line);
                     throw new IllegalArgumentException("Each Route should contain atleast " + MIN_ROUTE_ARGUMENTS + " integers.");
                 } else {
 
@@ -106,4 +118,11 @@ public class BusRouteDataFile {
         }
     }
 
+    public void setDELIMITER(String DELIMITER) {
+        this.DELIMITER = DELIMITER;
+    }
+
+    public void setMIN_ROUTE_ARGUMENTS(int MIN_ROUTE_ARGUMENTS) {
+        this.MIN_ROUTE_ARGUMENTS = MIN_ROUTE_ARGUMENTS;
+    }
 }

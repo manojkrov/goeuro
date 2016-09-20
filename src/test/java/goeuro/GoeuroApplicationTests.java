@@ -41,6 +41,8 @@ public class GoeuroApplicationTests {
         BusRouteDataFile.BUS_DATA_FILE_PATH = getAbsolutePathFromName("BusRouteSampleDataFile");
 
         BusRouteDataFile dataFile = new BusRouteDataFile();
+        dataFile.setDELIMITER(" ");
+        dataFile.setMIN_ROUTE_ARGUMENTS(3);
         HashMap<Integer, HashSet<Integer>> stationIdRouteMap = dataFile.getBusRouteData();
 
         // Non existing station Id, produces null
