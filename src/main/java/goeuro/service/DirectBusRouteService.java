@@ -4,13 +4,17 @@ import goeuro.util.BusRouteDataFile;
 import goeuro.util.DirectBusRouteResult;
 import goeuro.validator.StationId;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +26,8 @@ import java.util.HashSet;
 @Service
 @Path("direct")
 public class DirectBusRouteService {
+
+    private static final Logger logger = LoggerFactory.getLogger(DirectBusRouteService.class);
 
     /**
      * Autowired class for loading the data file.
@@ -41,16 +47,22 @@ public class DirectBusRouteService {
     @GET
     @Produces("application/json")
     public DirectBusRouteResult getDirectBusRoute(@QueryParam("dep_sid") @NotEmpty @StationId String depSid,
-                                                  @QueryParam("arr_sid") @NotEmpty @StationId String arrSid) {
+                                                  @QueryParam("arr_sid") @NotEmpty @StationId String arrSid,
+                                                  @Context final HttpServletResponse response) {
 
         int departureStationId = Integer.parseInt(depSid);
         int arrivalStationId = Integer.parseInt(arrSid);
 
         HashMap<Integer, HashSet<Integer>> busRouteData;
-        try {
-            busRouteData = busRouteDataFile.getBusRouteData();
-        } catch (IOException e) {
-            //Any error in data loading returns false
+        busRouteData = busRouteDataFile.getBusRouteData();
+
+        if (busRouteData.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            try {
+                response.flushBuffer();
+            } catch (IOException e) {
+                logger.error("Error setting response status ", e);
+            }
             return new DirectBusRouteResult(departureStationId, arrivalStationId, false);
         }
 
