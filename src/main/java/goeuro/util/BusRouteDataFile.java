@@ -41,14 +41,11 @@ public class BusRouteDataFile {
 
     }
 
-    public HashMap<Integer, HashSet<Integer>> getBusRouteData() throws IOException {
+    public HashMap<Integer, HashSet<Integer>> getBusRouteData() {
         if (!isBusRouteDataLoaded) {
-            if (!loadBusRouteData()) {
-                logger.error("Error loading the input Data");
-                throw new IOException("Error loading Bus Data");
-
-            }
+            loadBusRouteData();
         }
+
         return busRouteData;
     }
 
@@ -87,8 +84,8 @@ public class BusRouteDataFile {
 
             isBusRouteDataLoaded = true;
         } catch (IOException | IllegalArgumentException e) {
-            e.printStackTrace();
             isBusRouteDataLoaded = false;
+            logger.error("Error loading Data ", e);
         }
 
         return isBusRouteDataLoaded;
